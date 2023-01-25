@@ -45,7 +45,7 @@ addVxlan() {
     echo "multicast ${GROUP} for VNI ${VNI} on ${PIF}"
 
     if [[ ! -d /sys/class/net/${VXLAN_DEV} ]]; then
-        ip -f ${FAMILY} link add ${VXLAN_DEV} type vxlan id ${VNI} group ${GROUP} ttl 10 dev ${PIF}
+        ip -f ${FAMILY} link add ${VXLAN_DEV} type vxlan id ${VNI} group ${GROUP} ttl 5 dev ${PIF} dstport 4789
         ip link set ${VXLAN_DEV} up
         ip -f ${FAMILY} route add ${GROUP} dev ${PIF}
         sysctl -qw net.ipv6.conf.${VXLAN_DEV}.disable_ipv6=1
@@ -57,7 +57,7 @@ addVxlan() {
         sysctl -qw net.ipv6.conf.${VXLAN_BR}.disable_ipv6=1
     fi
 
-    bridge link show|grep ${VXLAN_BR}|awk '{print $2}'|grep "^${VXLAN_DEV}\$" > /dev/null
+    bridge link show|grep ${VXLAN_BR}|awk '{print $2}'|grep "^${VXLAN_DEV}" > /dev/null
     if [[ $? -gt 0 ]]; then
         ip link set ${VXLAN_DEV} master ${VXLAN_BR}
     fi
